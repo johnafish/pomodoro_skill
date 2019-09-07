@@ -1,6 +1,8 @@
-// This sample demonstrates handling intents from an Alexa skill using the Alexa Skills Kit SDK (v2).
-// Please visit https://alexa.design/cookbook for additional examples on implementing slots, dialog management,
-// session persistence, api calls, and more.
+// A simple pomodoro Alexa skill written by John Fish
+// Sorry for the sloppy code, it was rushed
+// Feel free to modify and use for noncommercial purposes without credit
+// contact me for any commercial use of this code
+
 const Alexa = require('ask-sdk-core');
 const Util = require('util.js');
 var PlayState = "play";
@@ -14,7 +16,6 @@ const LaunchRequestHandler = {
         if (supportsAPL(handlerInput)) {
             handlerInput.responseBuilder
             .addDirective(VideoViewDirective())
-            // .addDirective(TimerCounterDirective())
         }
         return handlerInput.responseBuilder
             .speak(speakOutput)
@@ -31,8 +32,8 @@ const ControlPomodoroIntentHandler = {
     },
     handle(handlerInput) {
         const responseBuilder = handlerInput.responseBuilder;
-        
-        var speakOutput = PlayState==="play" ? "Pausing Pomodoro" : "Playing pomodoro";
+
+        var speakOutput = PlayState ==="play" ? "Pausing Pomodoro" : "Playing pomodoro";
 
         if (handlerInput.requestEnvelope.context.System.device.supportedInterfaces['Alexa.Presentation.APL']) {
             return handlerInput.responseBuilder
@@ -43,10 +44,8 @@ const ControlPomodoroIntentHandler = {
         else {
             return handlerInput.responseBuilder
             .speak(speakOutput)
-            //.reprompt('add a reprompt if you want to keep the session open for the user to respond')
             .getResponse();
         }
-        
     }
 };
 
@@ -135,6 +134,23 @@ function supportsDisplay(handlerInput) {
     handlerInput.requestEnvelope.context.System.device.supportedInterfaces &&
     handlerInput.requestEnvelope.context.System.device.supportedInterfaces.Display;
   return hasDisplay;
+}
+
+function ControlDirective() {
+    if (PlayState === "play") {
+        PlayState = "pause"
+    } else {
+        PlayState = "play"
+    }
+    return {
+        "type" : "Alexa.Presentation.APL.ExecuteCommands",
+        "token": "ctrl-token",
+        "commands": [{
+            "type": "ControlMedia",
+            "componentId" : "videoplayer",
+            "command": PlayState
+        }]
+    }
 }
 
 function VideoViewDirective() {
